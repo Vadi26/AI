@@ -1,26 +1,8 @@
 from tabulate import tabulate
 
-def givePosition(openList, cost):
-    for i in range(len(openList)):
-        if openList[i][1] < cost:
-            continue
-        elif openList[i][1] > cost:
-            return i
-        else:
-            while i < len(openList) and openList[i][1] == cost:
-                i = i + 1
-            return i
-    return len(openList)
-
 def sortNodes(nodeList):
     nodeList.sort(key=lambda x: x[1])
     return nodeList
-
-def isInClosedList(N, closedList):
-    for i in closedList:
-        if i == N:
-            return True
-    return False
 
 def isInList(N, List):
     for i in List:
@@ -28,14 +10,6 @@ def isInList(N, List):
         if N == temp:
             return True
     return False
-
-def shouldIInsert(openList, childTuple):
-    for i in range(len(openList)):
-        if childTuple[0] == openList[i][0]:
-            if childTuple[1] < openList[i][1]:
-                openList[i][1] = childTuple[1]
-                return True, i
-    return False, -1
 
 def checkCost(N, cost, openList):
     for i in range(len(openList)):
@@ -59,6 +33,7 @@ def UCS(start, goal, searchSpace):
 
         if (N == goal):
             ans.append([temp, N, closedList, True, ""])
+            print("Cost to reach the destination : ", cost)
             break
         
         else:
@@ -77,6 +52,7 @@ def UCS(start, goal, searchSpace):
                     if (checkCost(child, price, openList) != -1):
                         openList.pop(checkCost(child, price, openList))
                         openList.insert(len(openList), [child, price])
+                        path[child] = N
             openList = sortNodes(openList)
             ans.append([temp, N, list(closedList), False, children])
     print(tabulate(ans, headers=["OL", "N", "CL", "GT(N)", "Successor(N)"], tablefmt="fancy_grid"))

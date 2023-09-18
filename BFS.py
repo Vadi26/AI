@@ -21,7 +21,6 @@ def BFS(start, goal, searchSpace):
             for i in range(len(children)):
                 child=children[i]
                 if (child not in closedList and child not in openList):
-                    # openList.append(child)
                     openList.insert(len(openList), child)
                     path[child] = N
             ans.append([temp, N, list(closedList), False, children])
