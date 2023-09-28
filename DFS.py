@@ -38,8 +38,19 @@ def DFS(start, goal, searchSpace):
     finalPath.reverse()
     print("Path followed is : ", finalPath)
 
-start = 'A'
-goal = 'H'
+start = 'a'
+goal = 'h'
+
+# searchSpace = {
+#     'a': ['b'],
+#     'b': ['e','c'],
+#     'c': ['b','d'],
+#     'd': ['c','f'],
+#     'e': ['g','f','b'],
+#     'f': ['e','h','d'],
+#     'g': ['h','e'],
+#     'h': ['g','f']
+# }
 
 searchSpace = {
     "A":["C", "B"],
