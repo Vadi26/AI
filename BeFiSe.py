@@ -28,6 +28,9 @@ def giveNeighbors(maze, N):
 def manhattanDistance(node, goal):
     return abs(node[0] - goal[0]) + abs(node[1] - goal[1])
 
+def myHeuristic(node, goal):
+    return max(abs(node[0] - goal[0]), abs(node[1] - goal[1])) + (math.sqrt(2) - 1) * min(abs(node[1] - goal[1]), abs(node[0] - goal[0]))
+
 def sortNodes(openList, goal):
     opcopy = copy.copy(openList)
     for i in opcopy:
