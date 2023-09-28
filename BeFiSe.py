@@ -1,20 +1,77 @@
 import numpy as np
 import math
+import copy
+import time
+import tkinter as tk
+from tabulate import tabulate
+# # Here N is the coordinate of the block and not the actual block value
 
-# my logic is to create a matrix. Now an element of the matrix will be a list of two numbers. First digit will be the state of the node and the second number will be th cost or the heuristic of that node
-def BeFiSe(maze, rows, cols):
-    for i in range(rows):
-        for j in range(cols):
-            if (((i == 1) and (j == 1)) or ((i == 2) and (j == 1)) or ((i == 2) and (j == 2)) or ((i == 3) and (j == 2)) or ((i == 3) and (j == 3)) or ((i == 3) and (j == 4)) or ((i == 3) and (j == 5)) or ((i == 3) and (j == 6)) or ((i == 3) and (j == 7)) or ((i == 3) and (j == 8)) or ((i == 3) and (j == 9)) or ((i == 2) and (j == 9)) or ((i == 1) and (j == 9)) or ((i == 1) and (j == 8)) or ((i == 1) and (j == 7)) or ((i == 1) and (j == 6)) or ((i == 1) and (j == 5))):
-                maze[i][j] = [-1, 0]
-            
-            elif (i == 2) and (j == 6):
-                maze[i][j] = [2,0]
-            elif (i == 3) and (j == 0):
-                maze[i][j] = [1, 0]
-    for i in range(rows):
-        for j in range(cols):
-            print(maze[i][j])
+def giveNeighbors(maze, N):
+    ans = []
+    m, n = maze.shape
+    x = N[0]
+    y = N[1]
+    if x > 0:
+        if maze[x-1][y] != -1:
+            ans.append([x - 1, y])
+    if x < m - 1:
+        if maze[x+1][y] != -1:
+            ans.append([x + 1, y])
+    if y > 0:
+        if maze[x][y-1] != -1:
+            ans.append([x, y - 1])
+    if y < n - 1:
+        if maze[x][y+1] != -1:
+            ans.append([x, y + 1])
+    return ans
+
+def manhattanDistance(node, goal):
+    return abs(node[0] - goal[0]) + abs(node[1] - goal[1])
+
+def sortNodes(openList, goal):
+    opcopy = copy.copy(openList)
+    for i in opcopy:
+        i.append(manhattanDistance(i, goal))
+    opcopy.sort(key=lambda x: x[2])
+    for i in opcopy:
+        i.pop(2)
+    return opcopy
+
+def BestFS(maze, start, goal):
+    openList = [start]
+    closedList = []
+    ans = []
+    path = {}
+    while len(openList):
+        temp = openList[:]
+        N = openList.pop(0)
+
+        if N not in closedList and N not in openList:
+            closedList.append(N)
+
+        if N == goal:
+            ans.append([temp, N, closedList, True, ""])
+            break
+            # return
+        
+        else:
+            children = giveNeighbors(maze, N)
+            for node in children:
+                if node not in closedList and node not in openList:
+                    openList.append(node)
+                    path[tuple(node)] = N
+            openList = sortNodes(openList, goal)
+            ans.append([list(temp), N, list(closedList), False, list(children)])
+    print(tabulate(ans, headers=["OL", "N", "CL", "GT(N)", "Successor(N)"], tablefmt="fancy_grid"))
+    finalPath = []
+    curr = tuple(goal)
+    while tuple(curr) != tuple(start):
+        finalPath.append(tuple(curr))
+        curr = path[tuple(curr)]
+    finalPath.append(tuple(start))
+    finalPath.reverse()
+    print("Path followed is : ", finalPath)
+    return finalPath, closedList
 
 def calculateManhattan(maze, goal):
     m, n = maze.shape
@@ -36,4 +93,51 @@ goal = [2, 6]
 
 maze = calculateManhattan(maze, goal)
 
-# So we can create a 3-tuple as follows -> [x-coord, y-coord, cost] for each node
+path, visited = BestFS(maze, start, goal)
+
+walls = [(1,1), (2,1), (2,2), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (2,9), (1,9), (1,8), (1,7), (1,6), (1,5)]
+
+def createMaze(canvas, rows, cols, square_size):
+    st = tuple(start)
+    go = tuple(goal)
+    for i in range(rows):
+        for j in range(cols):
+            x1 = j * square_size
+            y1 = i * square_size
+            x2 = x1 + square_size
+            y2 = y1 + square_size
+            canvas.create_rectangle(x1, y1, x2, y2, fill='white')
+    for i in range(rows):
+        for j in range(cols):
+            x1 = j * square_size
+            y1 = i * square_size
+            x2 = x1 + square_size
+            y2 = y1 + square_size
+            if (i,j) in walls:
+                canvas.create_rectangle(x1, y1, x2, y2, fill='grey')
+            elif (i,j) == st:
+                canvas.create_rectangle(x1, y1, x2, y2, fill='red')
+            elif (i,j) == go:
+                canvas.create_rectangle(x1, y1, x2, y2, fill='green')
+
+def Animate(canvas, visited, delay=500, index=0):
+    if index < len(visited):
+        i, j = visited[index]
+        x1 = j * square_size
+        y1 = i * square_size
+        x2 = x1 + square_size
+        y2 = y1 + square_size
+        canvas.create_rectangle(x1, y1, x2, y2, fill='blue')
+        canvas.after(delay, lambda: Animate(canvas, visited, delay, index + 1))
+
+root = tk.Tk()
+root.title("Robot navigation using Greedy Best First Search")
+
+canvas = tk.Canvas(root, width=400, height=300)  
+canvas.pack()
+rows = 5
+cols = 11
+square_size = min(400 // cols, 300 // rows)
+createMaze(canvas, rows, cols, square_size)
+Animate(canvas, visited)
+root.mainloop()
