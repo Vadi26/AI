@@ -4,7 +4,6 @@ import copy
 import time
 import tkinter as tk
 from tabulate import tabulate
-# # Here N is the coordinate of the block and not the actual block value
 
 def giveNeighbors(maze, N):
     ans = []
@@ -23,33 +22,21 @@ def giveNeighbors(maze, N):
     if y < n - 1:
         if maze[x][y+1] != -1:
             ans.append([x, y + 1])
-    if x > 0 and y > 0:
-        if maze[x-1][y-1] != -1:
-            ans.append([x - 1, y - 1])
-    if x < m - 1 and y > 0:
-        if maze[x+1][y-1] != -1:
-            ans.append([x + 1, y - 1])
-    if x > 0 and y < n - 1:
-        if maze[x-1][y+1] != -1:
-            ans.append([x - 1, y + 1])
-    if x < m - 1 and y < n - 1:
-        if maze[x+1][y+1] != -1:
-            ans.append([x + 1, y + 1])
     return ans
 
-def diagonalDistance(node, goal):
-    return math.sqrt(2) * (min(abs(node[0] - goal[0]), abs(node[1] - goal[1]))) + max(abs(node[0] - goal[0]), abs(node[1] - goal[1]))
+def manhattanDistance(node, goal):
+    return abs(node[0] - goal[0]) + abs(node[1] - goal[1])
 
 def sortNodes(openList, goal):
     opcopy = copy.copy(openList)
     for i in opcopy:
-        i.append(diagonalDistance(i, goal))
+        i.append(manhattanDistance(i, goal))
     opcopy.sort(key=lambda x: x[2])
     for i in opcopy:
         i.pop(2)
     return opcopy
 
-def BestFS(maze, start, goal):
+def Astar(maze, start, goal):
     openList = [start]
     closedList = []
     ans = []
@@ -64,12 +51,12 @@ def BestFS(maze, start, goal):
         if N == goal:
             ans.append([temp, N, closedList, True, ""])
             break
-            # return
         
         else:
             children = giveNeighbors(maze, N)
             for node in children:
                 if node not in closedList and node not in openList:
+                    # node = 
                     openList.append(node)
                     path[tuple(node)] = N
             openList = sortNodes(openList, goal)
@@ -85,17 +72,17 @@ def BestFS(maze, start, goal):
     print("Path followed is : ", finalPath)
     return finalPath, closedList
 
-def calculateManhattan(maze, goal):
+def calculateManhattan(maze, start, goal):
     m, n = maze.shape
     for x in range(m):
         for y in range(n):
             if (maze[x][y] != -1):
-                maze[x][y] = diagonalDistance((x, y), goal)
+                maze[x][y] = abs(x - goal[0]) + abs(y - goal[1]) + abs(x - start[0]) + abs(y - start[1])
     return maze
 
 maze = np.array([
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, 0, -1, 0, -1, 0, -1, -1, -1, -1, 0, -1, -1, 0, -1],
+    [-1, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1],
     [-1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
     [-1, 0, -1, 0, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1],
     [-1, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
@@ -111,14 +98,19 @@ maze = np.array([
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1]
 ])
 
+# maze = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+#           [0, -1, 0, 0, 0, -1, -1, -1, -1, -1, 0],
+#           [0, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0],
+#           [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0],
+#           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
 start = [1, 1]
 goal = [14, 13]
 
-maze = calculateManhattan(maze, goal)
+maze = calculateManhattan(maze, start, goal)
+print(maze)
 
-path, visited = BestFS(maze, start, goal)
-
-print("Path followed is : ", path)
+path, visited = Astar(maze, start, goal)
 
 def giveWalls(maze):
     m, n = maze.shape
@@ -131,6 +123,7 @@ def giveWalls(maze):
 
 # walls = [(1,1), (2,1), (2,2), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (2,9), (1,9), (1,8), (1,7), (1,6), (1,5)]
 walls = giveWalls(maze)
+
 def createMaze(canvas, rows, cols, square_size):
     st = tuple(start)
     go = tuple(goal)
@@ -167,7 +160,7 @@ def Animate(canvas, visited, delay=500, index=1):
         canvas.after(delay, lambda: Animate(canvas, visited, delay, index + 1))
 
 root = tk.Tk()
-root.title("Robot navigation using Greedy Best First Search")
+root.title("Robot navigation using A* algorithm")
 
 canvas = tk.Canvas(root, width=500, height=500)  
 canvas.pack()

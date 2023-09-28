@@ -81,22 +81,49 @@ def calculateManhattan(maze, goal):
                 maze[x][y] = abs(x - goal[0]) + abs(y - goal[1])
     return maze
 
+maze = np.array([
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+    [-1, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1],
+    [-1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+    [-1, 0, -1, 0, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1],
+    [-1, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+    [-1, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1],
+    [-1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1],
+    [-1, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, 0, -1, 0, -1],
+    [-1, 0, 0, 0, 0, 0, 0, -1, 0, -1, -1, 0, -1, 0, -1],
+    [-1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, -1, 0, -1],
+    [-1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, -1],
+    [-1, 0, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1],
+    [-1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, -1],
+    [-1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1],
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1]
+])
 
-maze = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-          [0, -1, 0, 0, 0, -1, -1, -1, -1, -1, 0],
-          [0, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0],
-          [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+# maze = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+#           [0, -1, 0, 0, 0, -1, -1, -1, -1, -1, 0],
+#           [0, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0],
+#           [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0],
+#           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
-start = [3, 0]
-goal = [2, 6]
+start = [1, 1]
+goal = [14, 13]
 
 maze = calculateManhattan(maze, goal)
+print(maze)
 
 path, visited = BestFS(maze, start, goal)
 
-walls = [(1,1), (2,1), (2,2), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (2,9), (1,9), (1,8), (1,7), (1,6), (1,5)]
+def giveWalls(maze):
+    m, n = maze.shape
+    ans = []
+    for x in range(m):
+        for y in range(n):
+            if (maze[x][y] == -1):
+                ans.append((x,y))
+    return ans
 
+# walls = [(1,1), (2,1), (2,2), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (2,9), (1,9), (1,8), (1,7), (1,6), (1,5)]
+walls = giveWalls(maze)
 def createMaze(canvas, rows, cols, square_size):
     st = tuple(start)
     go = tuple(goal)
@@ -120,7 +147,9 @@ def createMaze(canvas, rows, cols, square_size):
             elif (i,j) == go:
                 canvas.create_rectangle(x1, y1, x2, y2, fill='green')
 
-def Animate(canvas, visited, delay=500, index=0):
+def Animate(canvas, visited, delay=500, index=1):
+    if index == len(visited) - 1:
+        return
     if index < len(visited):
         i, j = visited[index]
         x1 = j * square_size
@@ -133,11 +162,11 @@ def Animate(canvas, visited, delay=500, index=0):
 root = tk.Tk()
 root.title("Robot navigation using Greedy Best First Search")
 
-canvas = tk.Canvas(root, width=400, height=300)  
+canvas = tk.Canvas(root, width=500, height=500)  
 canvas.pack()
-rows = 5
-cols = 11
-square_size = min(400 // cols, 300 // rows)
+rows = 15
+cols = 15
+square_size = min(500 // cols, 500 // rows)
 createMaze(canvas, rows, cols, square_size)
 Animate(canvas, visited)
 root.mainloop()
