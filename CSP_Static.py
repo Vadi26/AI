@@ -1,9 +1,10 @@
+import copy
+
 def isValid(V, visited, node, color):
     for neighbor in V[node]:
         if neighbor in visited and visited[neighbor] == color:
             return False
     return True
-
 
 def CSP(V, D, visited, ans, index):
     if len(V) == index:
@@ -20,19 +21,25 @@ def CSP(V, D, visited, ans, index):
                     CSP(V, D, visited, ans, index + 1)
                     visited[curr] = None
 
-V = {'a':['b', 'c'],
-    'b':['a', 'c', 'd', 'e'],
-    'c':['a', 'b', 'd', 'f'],
-    'd':['b', 'c', 'e', 'f'],
-    'e':['b', 'd'],
-    'f':['c', 'd']}
+V = {
+    'a': ['b', 'c'],
+    'b': ['e', 'c', 'a'],
+    'c': ['a', 'b', 'e', 'd'],
+    'd': ['c', 'e', 'g', 'f'],
+    'e': ['b', 'g', 'd', 'c'],
+    'f': ['d', 'g'],
+    'g': ['e', 'f', 'd']
+}
 
-visited = {'a':None,
-    'b':None,
-    'c':None,
-    'd':None,
-    'e':None,
-    'f':None}
+visited = {
+    'a': None,
+    'b': None,
+    'c': None,
+    'd': None,
+    'e': None,
+    'f': None,
+    'g': None
+}
 
 D = ['R', 'G', 'B']
 
