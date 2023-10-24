@@ -30,10 +30,10 @@ def manhattanDistance(node, goal):
 def myHeuristic(node, goal):
     return max(abs(node[0] - goal[0]), abs(node[1] - goal[1])) + (math.sqrt(2) - 1) * min(abs(node[1] - goal[1]), abs(node[0] - goal[0]))
 
-def sortNodes(openList, goal):
+def sortNodes(start, openList, goal):
     opcopy = copy.copy(openList)
     for i in opcopy:
-        i.append(myHeuristic(i, goal))
+        i.append(manhattanDistance(i, goal) + manhattanDistance(start, i))
     opcopy.sort(key=lambda x: x[2])
     for i in opcopy:
         i.pop(2)
@@ -61,7 +61,7 @@ def Astar(maze, start, goal):
                 if node not in closedList and node not in openList:
                     openList.append(node)
                     path[tuple(node)] = N
-            openList = sortNodes(openList, goal)
+            openList = sortNodes(start, openList, goal)
             ans.append([list(temp), N, list(closedList), False, list(children)])
     print(tabulate(ans, headers=["OL", "N", "CL", "GT(N)", "Successor(N)"], tablefmt="fancy_grid"))
     finalPath = []
@@ -100,6 +100,24 @@ maze = np.array([
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 ])
 
+# maze = np.array([
+#     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+#     [-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+#     [-1, 0, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1],
+#     [-1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1],
+#     [-1, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1],
+#     [-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, -1, -1],
+#     [-1, 0, -1, -1, -1, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1],
+#     [-1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, -1],
+#     [-1, 0, -1, 0, -1, -1, -1, 0, -1, -1, 0, -1, 0, 0, -1],
+#     [-1, 0, -1, 0, 0, 0, -1, 0, 0, -1, 0, -1, -1, -1, -1],
+#     [-1, 0, -1, -1, -1, 0, -1, -1, -1, -1, 0, 0, 0, 0, -1],
+#     [-1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, -1, 0, -1],
+#     [-1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1],
+#     [-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+#     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+# ])
+
 # maze = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
 #           [0, -1, 0, 0, 0, -1, -1, -1, -1, -1, 0],
 #           [0, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0],
@@ -107,12 +125,13 @@ maze = np.array([
 #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
 start = [1, 1]
-goal = [13, 1]
+goal = [13, 13]
 
-maze = calculateManhattan(maze, start, goal)
-print(maze)
+# maze = calculateManhattan(maze, start, goal)
+# print(maze)
 
 path, visited = Astar(maze, start, goal)
+print(maze)
 
 def giveWalls(maze):
     m, n = maze.shape
