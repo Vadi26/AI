@@ -34,7 +34,7 @@ def myHeuristic(node, goal):
 def sortNodes(openList, goal):
     opcopy = copy.copy(openList)
     for i in opcopy:
-        i.append(myHeuristic(i, goal))
+        i.append(manhattanDistance(i, goal))
     opcopy.sort(key=lambda x: x[2])
     for i in opcopy:
         i.pop(2)
